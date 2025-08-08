@@ -17,10 +17,44 @@ function parsePage() {
 
   let discount = oldPrice - price;
 
+  let currency = document.querySelector('.price').textContent.split('');
+
+  function currencyFn(data) {
+    for (let elem of data) {
+      if (elem == '₽') {
+        return (currency = 'RUB');
+      }
+      if (elem == '$') {
+        return (currency = 'USD');
+      }
+      if (elem == '€') {
+        return (currency = 'EUR');
+      }
+      if (!elem) {
+        return (currency = 'Невозможно определить валюту товара!');
+      }
+    }
+  }
+
+  currencyFn(currency);
+
+  let propertiesObj = {};
+
+  let properties = document.querySelectorAll('.properties li');
+
+  properties.forEach((li) => {
+    let spans = li.querySelectorAll('span');
+    const key = spans[0].textContent.trim(); // Первый <span> - ключ
+    const value = spans[1].textContent.trim(); // Второй <span> - значение
+    propertiesObj[key] = value;
+  });
+
+  let imagesArr = [];
+
+  let imagesDom = document.querySelectorAll('.preview img');
+
   let meta = {
-    title:
-      document.querySelector('title')?.textContent.split(' ', 2).join(' ') ||
-      null,
+    title: document.querySelector('title')?.textContent.includes('') || null,
     description:
       document
         .querySelector('meta[name="description"]')
@@ -64,7 +98,13 @@ function parsePage() {
     price: price,
     oldPrice: oldPrice,
     discount: discount,
-    discountPercent: `${(discount / oldPrice) * 100}%`,
+    discountPercent: `${(discount / oldPrice) * 100}%`
+      ? `${(discount / oldPrice) * 100}%`
+      : '0%',
+    currency: currency,
+    properties: propertiesObj,
+    description: document.querySelector('.description').innerHTML,
+    images: imagesArr,
   };
 
   return {
