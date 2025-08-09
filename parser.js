@@ -31,7 +31,7 @@ function parsePage() {
         return (currency = 'EUR');
       }
       if (!elem) {
-        return (currency = 'Невозможно определить валюту товара!');
+        return (currency = 'Невозможно определить валюту!');
       }
     }
   }
@@ -44,14 +44,49 @@ function parsePage() {
 
   properties.forEach((li) => {
     let spans = li.querySelectorAll('span');
-    const key = spans[0].textContent.trim(); // Первый <span> - ключ
-    const value = spans[1].textContent.trim(); // Второй <span> - значение
+    const key = spans[0].textContent.trim();
+    const value = spans[1].textContent.trim();
     propertiesObj[key] = value;
   });
 
-  let imagesArr = [];
+  let imagesArray = [];
 
-  let imagesDom = document.querySelectorAll('.preview img');
+  let imagesDom = document.querySelectorAll('.preview nav img');
+
+  imagesDom.forEach((img) => {
+    let imgData = {};
+    imgData.preview = img.getAttribute('src');
+    imgData.full = img.getAttribute('data-src');
+    imgData.alt = img.getAttribute('alt');
+    imagesArray.push(imgData);
+  });
+
+  let suggestedArray = [];
+
+  let suggestedDom = document.querySelectorAll('.suggested article');
+
+  suggestedDom.forEach((card) => {
+    let cardData = {};
+    cardData.name = card.querySelector('h3').textContent;
+    cardData.description = card.querySelector('p').textContent;
+    cardData.image = card.querySelector('img').getAttribute('src');
+    cardData.price = card.querySelector('b').textContent.match(/\d+/)[0];
+    cardData.currency = card.querySelector('b').textContent.includes('₽')
+      ? 'RUB'
+      : 'Невозможно определить валюту!';
+    suggestedArray.push(cardData);
+  });
+
+  let reviewsArray = [];
+
+  let reviewsDom = document.querySelectorAll('.reviews article');
+
+  reviewsDom.forEach((card) => {
+    console.log(cardData);
+    reviewsArray.push(cardData);
+  });
+
+  console.log(reviewsDom);
 
   let meta = {
     title: document.querySelector('title')?.textContent.includes('') || null,
@@ -104,14 +139,18 @@ function parsePage() {
     currency: currency,
     properties: propertiesObj,
     description: document.querySelector('.description').innerHTML,
-    images: imagesArr,
+    images: imagesArray,
   };
+
+  let suggested = suggestedArray;
+
+  let reviews = reviewsArray;
 
   return {
     meta,
     product,
-    suggested: [],
-    reviews: [],
+    suggested,
+    reviews,
   };
 }
 
